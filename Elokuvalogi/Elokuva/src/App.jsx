@@ -1,6 +1,11 @@
 import React, { useState, useContext } from "react";
 import "./App.css";
-import { CartContext, ThemeContext, UserContext } from "./context/CartContext";
+// Tuodaan kontekstit uuden tiedoston kautta
+import {
+  ElokuvaContext,
+  ThemeContext,
+  UserContext,
+} from "./context/CartContext";
 
 export default function App() {
   const { theme } = useContext(ThemeContext);
@@ -17,6 +22,7 @@ export default function App() {
         padding: "20px",
         boxSizing: "border-box",
         fontFamily: "sans-serif",
+        // Dynaaminen taustaväri ja tekstiväri teeman mukaan
         backgroundColor: theme === "light" ? "#ffffff" : "#121212",
         color: theme === "light" ? "#000000" : "#ffffff",
         transition: "background-color 0.3s ease, color 0.3s ease",
@@ -26,7 +32,7 @@ export default function App() {
         <Header />
         <Haku />
         <Lomake />
-        <Ostoslista />
+        <Elokuvalista />
       </div>
     </div>
   );
@@ -49,9 +55,9 @@ function Header() {
   const buttonStyle = {
     padding: "6px 12px",
     cursor: "pointer",
-    backgroundColor: theme === "light" ? "black" : "#333",
+    backgroundColor: "black",
     color: "white",
-    border: theme === "light" ? "1px solid #555" : "1px solid #777",
+    border: "1px solid #555",
     borderRadius: "4px",
   };
 
@@ -68,18 +74,18 @@ function Header() {
       style={{
         marginBottom: "20px",
         paddingBottom: "10px",
-        borderBottom: theme === "light" ? "1px solid #ccc" : "1px solid #444",
+        borderBottom: "1px solid #ccc",
       }}
     >
       <div
         style={{
           display: "flex",
-          justifycontent: "space-between",
+          justifyContent: "space-between",
           alignItems: "center",
         }}
       >
         <h1 style={{ margin: 0, color: theme === "light" ? "black" : "white" }}>
-          Ostoslista
+          Elokuvakatalogi
         </h1>
         <button onClick={toggleTheme} style={buttonStyle}>
           Vaihda teema
@@ -110,7 +116,7 @@ function Header() {
 }
 
 function Haku() {
-  const { hakusana, setHakusana } = useContext(CartContext);
+  const { hakusana, setHakusana } = useContext(ElokuvaContext);
   const { theme } = useContext(ThemeContext);
 
   return (
@@ -119,21 +125,21 @@ function Haku() {
         htmlFor="haku"
         style={{ display: "block", fontWeight: "bold", marginBottom: "5px" }}
       >
-        Hae tuotetta nimen perusteella:
+        Hae elokuvaa nimen perusteella:
       </label>
       <input
         id="haku"
         type="text"
         value={hakusana}
         onChange={(e) => setHakusana(e.target.value)}
-        placeholder="Kirjoita tuotteen nimi..."
+        placeholder="Kirjoita elokuvan nimi..."
         style={{
           width: "100%",
           padding: "8px",
           boxSizing: "border-box",
           backgroundColor: theme === "light" ? "#fff" : "#222",
           color: theme === "light" ? "#000" : "#fff",
-          border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
+          border: "1px solid #ccc",
           borderRadius: "4px",
         }}
       />
@@ -142,21 +148,21 @@ function Haku() {
 }
 
 function Lomake() {
-  const { addToCart } = useContext(CartContext);
+  const { lisaaElokuva } = useContext(ElokuvaContext);
   const { theme } = useContext(ThemeContext);
 
   const [nimi, setNimi] = useState("");
-  const [maara, setMaara] = useState("1");
-  const [kategoria, setKategoria] = useState("");
+  const [vuosi, setVuosi] = useState("");
+  const [genre, setGenre] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!nimi || !maara || !kategoria) return alert("Täytä kaikki kentät!");
+    if (!nimi || !vuosi || !genre) return alert("Täytä kaikki kentät!");
 
-    addToCart({ name: nimi, quantity: maara, category: kategoria });
+    lisaaElokuva({ title: nimi, year: vuosi, genre: genre });
     setNimi("");
-    setMaara("1");
-    setKategoria("");
+    setVuosi("");
+    setGenre("");
   };
 
   const inputStyle = {
@@ -167,7 +173,7 @@ function Lomake() {
     boxSizing: "border-box",
     backgroundColor: theme === "light" ? "#fff" : "#222",
     color: theme === "light" ? "#000" : "#fff",
-    border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
+    border: "1px solid #ccc",
     borderRadius: "4px",
   };
 
@@ -177,32 +183,30 @@ function Lomake() {
       style={{
         marginBottom: "20px",
         padding: "15px",
-        border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
+        border: "1px solid #ccc",
         borderRadius: "5px",
-        backgroundColor: theme === "light" ? "transparent" : "#1e1e1e",
       }}
     >
-      <h3 style={{ margin: "0 0 10px 0" }}>Lisää uusi tuote</h3>
+      <h3>Lisää uusi elokuva</h3>
       <input
         type="text"
-        placeholder="Tuotteen nimi"
+        placeholder="Elokuvan nimi"
         value={nimi}
         onChange={(e) => setNimi(e.target.value)}
         style={inputStyle}
       />
       <input
-        type="number"
-        placeholder="Määrä"
-        min="1"
-        value={maara}
-        onChange={(e) => setMaara(e.target.value)}
+        type="text"
+        placeholder="Vuosi"
+        value={vuosi}
+        onChange={(e) => setVuosi(e.target.value)}
         style={inputStyle}
       />
       <input
         type="text"
-        placeholder="Kategoria (esim. Maitotuotteet)"
-        value={kategoria}
-        onChange={(e) => setKategoria(e.target.value)}
+        placeholder="Genre"
+        value={genre}
+        onChange={(e) => setGenre(e.target.value)}
         style={{ ...inputStyle, marginBottom: "10px" }}
       />
       <button
@@ -210,41 +214,41 @@ function Lomake() {
         style={{
           padding: "6px 12px",
           cursor: "pointer",
-          backgroundColor: theme === "light" ? "black" : "#333",
+          backgroundColor: "black",
           color: "white",
-          border: theme === "light" ? "1px solid #555" : "1px solid #777",
+          border: "1px solid #555",
           borderRadius: "4px",
         }}
       >
-        Lisää tuote
+        Lisää elokuva
       </button>
     </form>
   );
 }
 
-function Ostoslista() {
-  const { cartItems, removeFromCart } = useContext(CartContext);
+function Elokuvalista() {
+  const { elokuvat, poistaElokuva } = useContext(ElokuvaContext);
   const { theme } = useContext(ThemeContext);
 
   const buttonStyle = {
     marginLeft: "10px",
     padding: "3px 8px",
     cursor: "pointer",
-    backgroundColor: theme === "light" ? "black" : "#333",
+    backgroundColor: "black",
     color: "white",
-    border: theme === "light" ? "1px solid #555" : "1px solid #777",
+    border: "1px solid #555",
     borderRadius: "4px",
     fontSize: "0.85rem",
   };
 
   return (
     <div>
-      <h3>Ostoskorin sisältö</h3>
-      {cartItems.length === 0 ? (
-        <p>Ostoskori on tyhjä.</p>
+      <h3>Elokuvat</h3>
+      {elokuvat.length === 0 ? (
+        <p>Ei elokuvia saatavilla.</p>
       ) : (
         <ul style={{ paddingLeft: "20px" }}>
-          {cartItems.map((item, index) => (
+          {elokuvat.map((elokuva, index) => (
             <li
               key={index}
               style={{
@@ -252,10 +256,10 @@ function Ostoslista() {
                 color: theme === "light" ? "black" : "white",
               }}
             >
-              <strong>{item.name}</strong> ({item.quantity} kpl) -{" "}
-              <em>{item.category}</em>
+              <strong>{elokuva.title}</strong> ({elokuva.year}) -{" "}
+              <em>{elokuva.genre}</em>
               <button
-                onClick={() => removeFromCart(item.name)}
+                onClick={() => poistaElokuva(elokuva.title)}
                 style={buttonStyle}
               >
                 Poista
