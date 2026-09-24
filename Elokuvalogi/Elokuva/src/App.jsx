@@ -1,91 +1,39 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, useContext } from "react";
 import "./App.css";
+import { CartContext, ThemeContext, UserContext } from "./context/CartContext";
 
-// 1. Luodaan jaetut säiliöt (kontekstit) datalle ohjeen mukaisesti
-const ElokuvaContext = createContext();
-const ThemeContext = createContext();
-const UserContext = createContext();
-
-// Alustava data tehtävänannosta
-const alkuperaisetElokuvat = [
-  { title: "Inception", year: "2010", genre: "Sci-Fi" },
-  { title: "Parasite", year: "2019", genre: "Drama" },
-  { title: "The Matrix", year: "1999", genre: "Action" },
-];
-
-// Pääkomponentti (export default)
 export default function App() {
-  // Luodaan tilat elokuvien listalle ja hakusanalle
-  const [elokuvat, setElokuvat] = useState(alkuperaisetElokuvat);
-  const [hakusana, setHakusana] = useState("");
-
-  // UUDET TILAT: Teema ja Käyttäjänimi
-  const [theme, setTheme] = useState("light");
-  const [user, setUser] = useState("Matti Meikäläinen");
-
-  // Toiminto teeman vaihtamiseen
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  };
-
-  // Toiminto uuden elokuvan lisäämiseen
-  const lisaaElokuva = (uusiElokuva) => {
-    setElokuvat([...elokuvat, uusiElokuva]);
-  };
-
-  // Toiminto elokuvan poistamiseen filter-metodilla vihjeen mukaan
-  const poistaElokuva = (title) => {
-    setElokuvat(elokuvat.filter((elokuva) => elokuva.title !== title));
-  };
-
-  // Suodatetaan elokuvat hakusanan perusteella ennen kuin ne jaetaan eteenpäin
-  const suodatetutElokuvat = elokuvat.filter((elokuva) =>
-    elokuva.title.toLowerCase().includes(hakusana.toLowerCase()),
-  );
+  const { theme } = useContext(ThemeContext);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <UserContext.Provider value={{ user, setUser }}>
-        <ElokuvaContext.Provider
-          value={{
-            elokuvat: suodatetutElokuvat,
-            hakusana,
-            setHakusana,
-            lisaaElokuva,
-            poistaElokuva,
-          }}
-        >
-          {/* Tämä luokka vaihtuu dynaamisesti ja peittää koko ruudun taustan */}
-          <div
-            className={`app ${theme}`}
-            style={{
-              minHeight: "100vh",
-              width: "100vw",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              padding: "20px",
-              boxSizing: "border-box",
-              fontFamily: "sans-serif",
-            }}
-          >
-            {/* Alkuperäinen keskitetty asettelu laatikolle */}
-            <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-              <Header />
-              <Haku />
-              <Lomake />
-              <Elokuvalista />
-            </div>
-          </div>
-        </ElokuvaContext.Provider>
-      </UserContext.Provider>
-    </ThemeContext.Provider>
+    <div
+      className={`app ${theme}`}
+      style={{
+        minHeight: "100vh",
+        width: "100vw",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        padding: "20px",
+        boxSizing: "border-box",
+        fontFamily: "sans-serif",
+        backgroundColor: theme === "light" ? "#ffffff" : "#121212",
+        color: theme === "light" ? "#000000" : "#ffffff",
+        transition: "background-color 0.3s ease, color 0.3s ease",
+      }}
+    >
+      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+        <Header />
+        <Haku />
+        <Lomake />
+        <Ostoslista />
+      </div>
+    </div>
   );
 }
 
 // --- ALIKOMPONENTIT ---
 
-// Header-komponentti aina mustilla painikkeilla ja teemaan mukautuvalla otsikolla
 function Header() {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { user, setUser } = useContext(UserContext);
@@ -98,13 +46,12 @@ function Header() {
     }
   };
 
-  // Pysyvästi musta tyyli kaikille napeille
   const buttonStyle = {
     padding: "6px 12px",
     cursor: "pointer",
-    backgroundColor: "black",
+    backgroundColor: theme === "light" ? "black" : "#333",
     color: "white",
-    border: "1px solid #555",
+    border: theme === "light" ? "1px solid #555" : "1px solid #777",
     borderRadius: "4px",
   };
 
@@ -121,19 +68,18 @@ function Header() {
       style={{
         marginBottom: "20px",
         paddingBottom: "10px",
-        borderBottom: "1px solid #ccc",
+        borderBottom: theme === "light" ? "1px solid #ccc" : "1px solid #444",
       }}
     >
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifycontent: "space-between",
           alignItems: "center",
         }}
       >
-        {/* Otsikon väri pakotetaan mustaksi light-modessa ja valkoiseksi dark-modessa */}
         <h1 style={{ margin: 0, color: theme === "light" ? "black" : "white" }}>
-          Elokuvakatalogi
+          Ostoslista
         </h1>
         <button onClick={toggleTheme} style={buttonStyle}>
           Vaihda teema
@@ -163,9 +109,8 @@ function Header() {
   );
 }
 
-// 1. Haku-komponentti
 function Haku() {
-  const { hakusana, setHakusana } = useContext(ElokuvaContext);
+  const { hakusana, setHakusana } = useContext(CartContext);
   const { theme } = useContext(ThemeContext);
 
   return (
@@ -174,21 +119,21 @@ function Haku() {
         htmlFor="haku"
         style={{ display: "block", fontWeight: "bold", marginBottom: "5px" }}
       >
-        Hae elokuvaa nimen perusteella:
+        Hae tuotetta nimen perusteella:
       </label>
       <input
         id="haku"
         type="text"
         value={hakusana}
         onChange={(e) => setHakusana(e.target.value)}
-        placeholder="Kirjoita elokuvan nimi..."
+        placeholder="Kirjoita tuotteen nimi..."
         style={{
           width: "100%",
           padding: "8px",
           boxSizing: "border-box",
           backgroundColor: theme === "light" ? "#fff" : "#222",
           color: theme === "light" ? "#000" : "#fff",
-          border: "1px solid #ccc",
+          border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
           borderRadius: "4px",
         }}
       />
@@ -196,24 +141,22 @@ function Haku() {
   );
 }
 
-// 2. Lomake-komponentti uuden lisäämiseen aina mustalla painikkeella
 function Lomake() {
-  const { lisaaElokuva } = useContext(ElokuvaContext);
+  const { addToCart } = useContext(CartContext);
   const { theme } = useContext(ThemeContext);
 
   const [nimi, setNimi] = useState("");
-  const [vuosi, setVuosi] = useState("");
-  const [genre, setGenre] = useState("");
+  const [maara, setMaara] = useState("1");
+  const [kategoria, setKategoria] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!nimi || !vuosi || !genre) return alert("Täytä kaikki kentät!");
+    if (!nimi || !maara || !kategoria) return alert("Täytä kaikki kentät!");
 
-    lisaaElokuva({ title: nimi, year: vuosi, genre: genre });
-
+    addToCart({ name: nimi, quantity: maara, category: kategoria });
     setNimi("");
-    setVuosi("");
-    setGenre("");
+    setMaara("1");
+    setKategoria("");
   };
 
   const inputStyle = {
@@ -224,7 +167,7 @@ function Lomake() {
     boxSizing: "border-box",
     backgroundColor: theme === "light" ? "#fff" : "#222",
     color: theme === "light" ? "#000" : "#fff",
-    border: "1px solid #ccc",
+    border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
     borderRadius: "4px",
   };
 
@@ -234,30 +177,32 @@ function Lomake() {
       style={{
         marginBottom: "20px",
         padding: "15px",
-        border: "1px solid #ccc",
+        border: theme === "light" ? "1px solid #ccc" : "1px solid #444",
         borderRadius: "5px",
+        backgroundColor: theme === "light" ? "transparent" : "#1e1e1e",
       }}
     >
-      <h3>Lisää uusi elokuva</h3>
+      <h3 style={{ margin: "0 0 10px 0" }}>Lisää uusi tuote</h3>
       <input
         type="text"
-        placeholder="Elokuvan nimi"
+        placeholder="Tuotteen nimi"
         value={nimi}
         onChange={(e) => setNimi(e.target.value)}
         style={inputStyle}
       />
       <input
-        type="text"
-        placeholder="Vuosi"
-        value={vuosi}
-        onChange={(e) => setVuosi(e.target.value)}
+        type="number"
+        placeholder="Määrä"
+        min="1"
+        value={maara}
+        onChange={(e) => setMaara(e.target.value)}
         style={inputStyle}
       />
       <input
         type="text"
-        placeholder="Genre"
-        value={genre}
-        onChange={(e) => setGenre(e.target.value)}
+        placeholder="Kategoria (esim. Maitotuotteet)"
+        value={kategoria}
+        onChange={(e) => setKategoria(e.target.value)}
         style={{ ...inputStyle, marginBottom: "10px" }}
       />
       <button
@@ -265,44 +210,53 @@ function Lomake() {
         style={{
           padding: "6px 12px",
           cursor: "pointer",
-          backgroundColor: "black",
+          backgroundColor: theme === "light" ? "black" : "#333",
           color: "white",
-          border: "1px solid #555",
+          border: theme === "light" ? "1px solid #555" : "1px solid #777",
           borderRadius: "4px",
         }}
       >
-        Lisää elokuva
+        Lisää tuote
       </button>
     </form>
   );
 }
 
-// 3. Elokuvalista-komponentti aina mustalla Poista-painikkeella
-function Elokuvalista() {
-  const { elokuvat, poistaElokuva } = useContext(ElokuvaContext);
+function Ostoslista() {
+  const { cartItems, removeFromCart } = useContext(CartContext);
+  const { theme } = useContext(ThemeContext);
+
+  const buttonStyle = {
+    marginLeft: "10px",
+    padding: "3px 8px",
+    cursor: "pointer",
+    backgroundColor: theme === "light" ? "black" : "#333",
+    color: "white",
+    border: theme === "light" ? "1px solid #555" : "1px solid #777",
+    borderRadius: "4px",
+    fontSize: "0.85rem",
+  };
 
   return (
     <div>
-      <h3>Elokuvat</h3>
-      {elokuvat.length === 0 ? (
-        <p>Ei elokuvia saatavilla.</p>
+      <h3>Ostoskorin sisältö</h3>
+      {cartItems.length === 0 ? (
+        <p>Ostoskori on tyhjä.</p>
       ) : (
         <ul style={{ paddingLeft: "20px" }}>
-          {elokuvat.map((elokuva, index) => (
-            <li key={index} style={{ marginBottom: "10px" }}>
-              <strong>{elokuva.title}</strong> ({elokuva.year}) -{" "}
-              <em>{elokuva.genre}</em>{" "}
+          {cartItems.map((item, index) => (
+            <li
+              key={index}
+              style={{
+                marginBottom: "10px",
+                color: theme === "light" ? "black" : "white",
+              }}
+            >
+              <strong>{item.name}</strong> ({item.quantity} kpl) -{" "}
+              <em>{item.category}</em>
               <button
-                onClick={() => poistaElokuva(elokuva.title)}
-                style={{
-                  marginLeft: "10px",
-                  cursor: "pointer",
-                  padding: "2px 8px",
-                  backgroundColor: "black",
-                  color: "white",
-                  border: "1px solid #555",
-                  borderRadius: "4px",
-                }}
+                onClick={() => removeFromCart(item.name)}
+                style={buttonStyle}
               >
                 Poista
               </button>
