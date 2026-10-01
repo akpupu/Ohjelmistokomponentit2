@@ -1,0 +1,188 @@
+{
+  "kukka": {
+    "hae_kaikki": {
+      "sql": [
+        "select nimi,vari,hinta,maara from kukka"
+      ]
+    },
+    "hae_nimella": {
+      "sql": [
+        "select nimi,vari,hinta,maara from kukka",
+        "where nimi=?"
+      ]
+    },
+    "hae_nimilista": {
+      "sql": [
+        "select nimi from kukka order by nimi asc"
+      ]
+    },
+    "lisaa": {
+      "sql": [
+        "insert into kukka (nimi,vari,hinta,maara)",
+        "values (?,?,?,?)"
+      ],
+      "parametrijarjestys": [
+        "nimi",
+        "vari",
+        "hinta",
+        "maara"
+      ]
+    },
+    "paivita_kukka": {
+      "sql": [
+        "update kukka set vari=?,hinta=?,maara=?",
+        "where nimi=?"
+      ],
+      "parametrijarjestys": [
+        "vari",
+        "hinta",
+        "maara",
+        "nimi"
+      ]
+    }
+  },
+
+  "viljelija": {
+    "hae_kaikki": {
+      "sql": [
+        "select viljelijannro,ytunnus,nimi,osoite,yhteys_sukunimi,",
+        "yhteys_etunimi,yhteys_puhelin,yhteys_email from `viljelijä`"
+      ]
+    },
+    "hae_perusavaimella": {
+      "sql": [
+        "select viljelijannro,ytunnus,nimi,osoite,yhteys_sukunimi,",
+        "yhteys_etunimi,yhteys_puhelin,yhteys_email from `viljelijä`",
+        "where viljelijannro=?"
+      ]
+    },
+    "hae_nimella": {
+      "sql": [
+        "select viljelijannro,ytunnus,nimi,osoite,yhteys_sukunimi,",
+        "yhteys_etunimi,yhteys_puhelin,yhteys_email from `viljelijä`",
+        "where nimi=?"
+      ]
+    },
+    "hae_ytunnuksella": {
+      "sql": [
+        "select viljelijannro,ytunnus,nimi,osoite,yhteys_sukunimi,",
+        "yhteys_etunimi,yhteys_puhelin,yhteys_email from `viljelijä`",
+        "where ytunnus=?"
+      ]
+    },
+    "hae_nimi_osoite_perusavaimella": {
+      "sql": [
+        "select nimi,osoite from `viljelijä` where viljelijannro=?"
+      ]
+    },
+    "hae_nimi_osoite_nimella": {
+      "sql": [
+        "select nimi,osoite from `viljelijä` where nimi=?"
+      ]
+    },
+    "hae_nimi_osoite_ytunnuksella": {
+      "sql": [
+        "select nimi,osoite from `viljelijä` where ytunnus=?"
+      ]
+    },
+    "hae_nimi_numero_lista": {
+      "sql": [
+        "select nimi,viljelijannro from `viljelijä` order by nimi asc"
+      ]
+    },
+    "lisaa": {
+      "sql": [
+        "insert into `viljelijä`",
+        "(viljelijannro,ytunnus,nimi,osoite,yhteys_sukunimi,yhteys_etunimi,yhteys_puhelin,yhteys_email)",
+        "values(?,?,?,?,?,?,?,?)"
+      ],
+      "parametrijarjestys": [
+        "viljelijannro",
+        "ytunnus",
+        "nimi",
+        "osoite",
+        "yhteys_sukunimi",
+        "yhteys_etunimi",
+        "yhteys_puhelin",
+        "yhteys_email"
+      ]
+    },
+    "paivita_viljelija": {
+      "sql": [
+        "update `viljelijä` set ytunnus=?,nimi=?,osoite=?,",
+        "yhteys_sukunimi=?,yhteys_etunimi=?,yhteys_puhelin=?,",
+        "yhteys_email=? where viljelijannro=?"
+      ],
+      "parametrijarjestys": [
+        "ytunnus",
+        "nimi",
+        "osoite",
+        "yhteys_sukunimi",
+        "yhteys_etunimi",
+        "yhteys_puhelin",
+        "yhteys_email",
+        "viljelijannro"
+      ]
+    },
+    "perusavain": "viljelijannro"
+  },
+
+  "varasto": {
+    "hae_kaikki": {
+      "sql": [
+        "select numero,kukka.nimi as kukkanimi,",
+        "`viljelijä`.viljelijannro,`viljelijä`.nimi as viljelijanimi,",
+        "kukka.vari,kukka.hinta,kukka.maara,",
+        "`viljelijän_kukat`.varastosaaldo,",
+        "`viljelijän_kukat`.yksikköhinta",
+        "from kukka",
+        "inner join `viljelijän_kukat`",
+        "on kukka.nimi=`viljelijän_kukat`.kukan_nimi",
+        "inner join `viljelijä`",
+        "on `viljelijä`.viljelijannro=`viljelijän_kukat`.viljelijannro",
+        "order by `viljelijä`.nimi asc,kukka.nimi asc"
+      ]
+    },
+
+    "lisaa": {
+      "sql": [
+        "insert into `viljelijän_kukat`",
+        "(viljelijannro,kukan_nimi,varastosaaldo,yksikköhinta)",
+        "values(?,?,?,?)"
+      ],
+      "parametrijarjestys": [
+        "viljelijannro",
+        "kukan_nimi",
+        "varastosaaldo",
+        "yksikkohinta"
+      ]
+    },
+
+    "paivita_varasto": {
+      "sql": [
+        "update `viljelijän_kukat`",
+        "set kukan_nimi=?,varastosaaldo=?,yksikköhinta=?",
+        "where numero=?"
+      ],
+      "parametrijarjestys": [
+        "kukan_nimi",
+        "varastosaaldo",
+        "yksikkohinta",
+        "numero"
+      ]
+    },
+
+    "paivita_varastosaldo": {
+      "sql": [
+        "update `viljelijän_kukat`",
+        "set varastosaaldo=? where numero=?"
+      ],
+      "parametrijarjestys": [
+        "varastosaaldo",
+        "numero"
+      ]
+    },
+
+    "perusavain": "numero"
+  }
+}
